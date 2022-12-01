@@ -22,6 +22,25 @@ public class ApplicationController {
     return ResponseEntity.ok(jasyptEncrypt(text));
   }
 
+  @PostMapping(value = {"/decrypt"},
+      consumes = MediaType.TEXT_PLAIN_VALUE,
+      produces = MediaType.TEXT_PLAIN_VALUE)
+  public ResponseEntity<String> decrypt(@RequestBody String text) {
+
+    if (StringUtils.isBlank(text))
+      return ResponseEntity.badRequest().build();
+
+    return ResponseEntity.ok(jasyptDecrypt(text));
+  }
+
+  private String jasyptDecrypt(String text) {
+    AES256TextEncryptor encryptor = new AES256TextEncryptor();
+    encryptor.setPassword("some_salt");
+    String temp = StringUtils.remove(text, "ENC(");
+    temp = StringUtils.remove(temp, ")");
+    return StringUtils.trim(encryptor.decrypt(temp));
+  }
+
   private String jasyptEncrypt(String text) {
     AES256TextEncryptor encryptor = new AES256TextEncryptor();
     encryptor.setPassword("some_salt");
